@@ -1,50 +1,85 @@
-# Welcome to your Expo app 👋
+# Mecenate — Feed (Test Assignment)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Демо
 
-## Get started
+https://github.com/user-attachments/assets/record1.mp4
 
-1. Install dependencies
+<video src="./assets/review/record1.mp4" controls width="320"></video>
 
-   ```bash
-   npm install
-   ```
+> Если видео не отображается в GitHub-превью, скачайте его: [assets/review/record1.mp4](assets/review/record1.mp4)
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+Лента публикаций для сервиса поддержки авторов Mecenate.
+Мобильное приложение на **React Native + Expo**, TypeScript, MobX + React Query.
 
-In the output, you'll find options to open the app in a
+## Стек
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- **Язык:** TypeScript (strict)
+- **Mobile:** React Native 0.81 + Expo SDK 54 (iOS + Android)
+- **Навигация:** expo-router
+- **Данные:** `@tanstack/react-query` — курсорная пагинация, кэш, pull-to-refresh, оптимистичные лайки
+- **State:** MobX (`mobx` + `mobx-react-lite`) — UI-стейт ленты и auth-токен
+- **Стилизация:** дизайн-токены ([src/theme/tokens.ts](src/theme/tokens.ts)) — единый источник цветов, отступов, радиусов и типографики
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Структура проекта
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+src/
+ ├── api/          # HTTP клиент + endpoint'ы
+ ├── store/        # MobX сторы (Auth, FeedUi)
+ ├── screens/      # Экраны (FeedScreen)
+ ├── components/   # UI компоненты (PostCard, ErrorState, ...)
+ ├── hooks/        # React Query хуки (usePostsFeed, useToggleLike)
+ ├── providers/    # React провайдеры (QueryProvider)
+ ├── theme/        # Дизайн-токены
+ ├── types/        # Доменные типы API
+ └── utils/        # Утилиты
+app/
+ ├── _layout.tsx   # expo-router root + провайдеры
+ └── index.tsx     # точка входа -> FeedScreen
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Что реализовано
 
-## Learn more
+- Экран `Feed`: список постов (аватар, имя, превью, обложка, лайки, комментарии)
+- Курсорная пагинация (`useInfiniteQuery`, подгрузка при скролле)
+- Pull-to-refresh (`RefreshControl`)
+- Закрытые посты (`tier: "paid"`) — заглушка вместо тела поста
+- Обработка ошибок API: экран ошибки + кнопка «Повторить»
+- Оптимистичное переключение лайков с откатом при ошибке
+- Фильтр по tier (все / free / paid)
+- Skeleton-загрузка
 
-To learn more about developing your project with Expo, look at the following resources:
+## Запуск
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+yarn install
+cp .env.example .env    # опционально — есть дефолты
+yarn start              # Expo Dev Server -> Expo Go
+yarn ios                # iOS симулятор
+yarn android            # Android эмулятор
+```
 
-## Join the community
+## Переменные окружения
 
-Join our community of developers creating universal apps.
+| Переменная                 | По умолчанию                             | Описание            |
+| -------------------------- | ---------------------------------------- | ------------------- |
+| `EXPO_PUBLIC_API_BASE_URL` | `https://k8s.mectest.ru/test-app`        | Базовый URL API     |
+| `EXPO_PUBLIC_AUTH_TOKEN`   | `550e8400-e29b-41d4-a716-446655440000`   | UUID-токен (Bearer) |
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## API
+
+Swagger: <https://k8s.mectest.ru/test-app/openapi.json>
+
+Используемые эндпоинты:
+
+- `GET /posts?limit&cursor&tier` — лента с курсорной пагинацией
+- `POST /posts/{id}/like` — toggle лайка
+
+## Архитектурные заметки
+
+- **React Query** хранит серверное состояние, **MobX** — локальный UI-стейт. Разделение устраняет дублирование и лишние перерисовки.
+- HTTP-клиент ([src/api/client.ts](src/api/client.ts)) инжектит Bearer из `AuthStore`, снимает `ApiEnvelope`, бросает типизированный `ApiError`.
+- Оптимистичные лайки — `onMutate/onError` в [useToggleLike](src/hooks/useToggleLike.ts) со снапшотами всех feed-кэшей и откатом при ошибке.
+- Компоненты мемоизированы (`memo` + `useCallback`) для плавного скролла.
