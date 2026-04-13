@@ -1,85 +1,51 @@
-# Mecenate — Feed (Test Assignment)
+# Mecenate — Feed
 
-## Демо
+## Demo
 
-https://github.com/user-attachments/assets/record1.mp4
+▶️ [assets/review/record1.mp4](assets/review/record1.mp4)
 
-<video src="./assets/review/record1.mp4" controls width="320"></video>
+> Нажмите на ссылку — GitHub откроет встроенный плеер.
 
-> Если видео не отображается в GitHub-превью, скачайте его: [assets/review/record1.mp4](assets/review/record1.mp4)
-
----
-
-Лента публикаций для сервиса поддержки авторов Mecenate.
-Мобильное приложение на **React Native + Expo**, TypeScript, MobX + React Query.
-
-## Стек
-
-- **Язык:** TypeScript (strict)
-- **Mobile:** React Native 0.81 + Expo SDK 54 (iOS + Android)
-- **Навигация:** expo-router
-- **Данные:** `@tanstack/react-query` — курсорная пагинация, кэш, pull-to-refresh, оптимистичные лайки
-- **State:** MobX (`mobx` + `mobx-react-lite`) — UI-стейт ленты и auth-токен
-- **Стилизация:** дизайн-токены ([src/theme/tokens.ts](src/theme/tokens.ts)) — единый источник цветов, отступов, радиусов и типографики
-
-## Структура проекта
-
-```
-src/
- ├── api/          # HTTP клиент + endpoint'ы
- ├── store/        # MobX сторы (Auth, FeedUi)
- ├── screens/      # Экраны (FeedScreen)
- ├── components/   # UI компоненты (PostCard, ErrorState, ...)
- ├── hooks/        # React Query хуки (usePostsFeed, useToggleLike)
- ├── providers/    # React провайдеры (QueryProvider)
- ├── theme/        # Дизайн-токены
- ├── types/        # Доменные типы API
- └── utils/        # Утилиты
-app/
- ├── _layout.tsx   # expo-router root + провайдеры
- └── index.tsx     # точка входа -> FeedScreen
-```
-
-## Что реализовано
-
-- Экран `Feed`: список постов (аватар, имя, превью, обложка, лайки, комментарии)
-- Курсорная пагинация (`useInfiniteQuery`, подгрузка при скролле)
-- Pull-to-refresh (`RefreshControl`)
-- Закрытые посты (`tier: "paid"`) — заглушка вместо тела поста
-- Обработка ошибок API: экран ошибки + кнопка «Повторить»
-- Оптимистичное переключение лайков с откатом при ошибке
-- Фильтр по tier (все / free / paid)
-- Skeleton-загрузка
-
-## Запуск
+## Запуск (Expo Go)
 
 ```bash
 yarn install
-cp .env.example .env    # опционально — есть дефолты
-yarn start              # Expo Dev Server -> Expo Go
-yarn ios                # iOS симулятор
-yarn android            # Android эмулятор
+yarn start
 ```
 
-## Переменные окружения
+После старта появится QR-код:
 
-| Переменная                 | По умолчанию                             | Описание            |
-| -------------------------- | ---------------------------------------- | ------------------- |
-| `EXPO_PUBLIC_API_BASE_URL` | `https://k8s.mectest.ru/test-app`        | Базовый URL API     |
-| `EXPO_PUBLIC_AUTH_TOKEN`   | `550e8400-e29b-41d4-a716-446655440000`   | UUID-токен (Bearer) |
+- **iOS** — откройте камеру, сканируйте QR → откроется в [Expo Go](https://apps.apple.com/app/expo-go/id982107779)
+- **Android** — откройте [Expo Go](https://play.google.com/store/apps/details?id=host.exp.exponent), сканируйте QR внутри приложения
 
-## API
+Также:
 
-Swagger: <https://k8s.mectest.ru/test-app/openapi.json>
+```bash
+yarn ios        # iOS-симулятор
+yarn android    # Android-эмулятор
+```
 
-Используемые эндпоинты:
+### Переменные окружения (опционально)
 
-- `GET /posts?limit&cursor&tier` — лента с курсорной пагинацией
-- `POST /posts/{id}/like` — toggle лайка
+```bash
+cp .env.example .env
+```
 
-## Архитектурные заметки
+| Переменная                 | По умолчанию                           |
+| -------------------------- | -------------------------------------- |
+| `EXPO_PUBLIC_API_BASE_URL` | `https://k8s.mectest.ru/test-app`      |
+| `EXPO_PUBLIC_AUTH_TOKEN`   | `550e8400-e29b-41d4-a716-446655440000` |
 
-- **React Query** хранит серверное состояние, **MobX** — локальный UI-стейт. Разделение устраняет дублирование и лишние перерисовки.
-- HTTP-клиент ([src/api/client.ts](src/api/client.ts)) инжектит Bearer из `AuthStore`, снимает `ApiEnvelope`, бросает типизированный `ApiError`.
-- Оптимистичные лайки — `onMutate/onError` в [useToggleLike](src/hooks/useToggleLike.ts) со снапшотами всех feed-кэшей и откатом при ошибке.
-- Компоненты мемоизированы (`memo` + `useCallback`) для плавного скролла.
+## Используемые библиотеки
+
+| Пакет                        | Назначение                                               |
+| ---------------------------- | -------------------------------------------------------- |
+| `expo` / `expo-router`       | Runtime и файловая навигация                             |
+| `react-native`               | UI-слой (iOS + Android)                                  |
+| `@tanstack/react-query`      | Серверное состояние, курсорная пагинация, кэш, refetch   |
+| `mobx` / `mobx-react-lite`   | Локальный UI-стейт (фильтр tier, auth-токен)             |
+| `react-native-reanimated`    | Entering-анимация карточек ленты                         |
+| `react-native-safe-area-context` | Safe-area на iOS/Android                             |
+| `expo-image`                 | Быстрая загрузка и кэш изображений                       |
+| `@expo/vector-icons`         | Иконки (Ionicons)                                        |
+| `typescript`                 | Strict-типизация                                         |
