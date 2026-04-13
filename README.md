@@ -2,9 +2,7 @@
 
 ## Demo
 
-▶️ [assets/review/record1.mp4](assets/review/record1.mp4)
-
-> Нажмите на ссылку — GitHub откроет встроенный плеер.
+https://github.com/user-attachments/assets/ea0fc6f5-45b7-4662-9eef-8e93a95f31a3
 
 ## Запуск (Expo Go)
 
