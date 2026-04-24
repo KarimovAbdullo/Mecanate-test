@@ -9,6 +9,8 @@ export const API_BASE_URL: string =
   process.env.EXPO_PUBLIC_API_BASE_URL ??
   DEFAULT_BASE_URL;
 
+export const WS_BASE_URL: string = API_BASE_URL.replace(/^http/, 'ws');
+
 export class ApiError extends Error {
   readonly status: number;
   readonly code?: string;

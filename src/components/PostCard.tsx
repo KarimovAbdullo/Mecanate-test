@@ -1,4 +1,5 @@
 import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import { memo, useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, layout, radius, spacing, typography } from '../theme/tokens';
@@ -16,7 +17,13 @@ interface Props {
 
 export const PostCard = memo(function PostCard({ post, onToggleLike, onPress }: Props) {
   const handleLike = useCallback(() => onToggleLike(post.id), [onToggleLike, post.id]);
-  const handlePress = useCallback(() => onPress?.(post.id), [onPress, post.id]);
+  const handlePress = useCallback(() => {
+    if (onPress) {
+      onPress(post.id);
+      return;
+    }
+    router.push(`/post/${post.id}`);
+  }, [onPress, post.id]);
   const isPaid = post.tier === 'paid';
 
   return (
@@ -30,23 +37,23 @@ export const PostCard = memo(function PostCard({ post, onToggleLike, onPress }: 
         </Text>
       </View>
 
-      {post.title ? <Text style={styles.title}>{post.title}</Text> : null}
-
       {isPaid ? (
-        <PaidPlaceholder />
-      ) : (
-        <Text style={styles.preview} numberOfLines={4}>
-          {post.preview || post.body}
-        </Text>
-      )}
-
-      {post.coverUrl ? (
+        <PaidPlaceholder coverUrl={post.coverUrl} />
+      ) : post.coverUrl ? (
         <Image
           source={{ uri: post.coverUrl }}
           style={styles.cover}
           contentFit="cover"
           transition={200}
         />
+      ) : null}
+
+      {post.title ? <Text style={styles.title}>{post.title}</Text> : null}
+
+      {!isPaid && (post.preview || post.body) ? (
+        <Text style={styles.preview} numberOfLines={4}>
+          {post.preview || post.body}
+        </Text>
       ) : null}
 
       <View style={styles.footer}>

@@ -54,6 +54,8 @@ export const layout = {
   avatarMd: 40,
   iconWrapSm: 44,
   iconWrapLg: 88,
+  touchTarget: 36,
+  inputMaxHeight: 96,
   coverAspectRatio: 16 / 11,
 } as const;
 

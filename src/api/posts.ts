@@ -9,6 +9,13 @@ export interface FetchPostsParams {
   signal?: AbortSignal;
 }
 
+export interface FetchCommentsParams {
+  postId: string;
+  limit?: number;
+  cursor?: string | null;
+  signal?: AbortSignal;
+}
+
 export const postsApi = {
   list: ({ limit = 10, cursor, tier, simulateError, signal }: FetchPostsParams = {}) =>
     request<PostsPage>('/posts', {
@@ -22,8 +29,15 @@ export const postsApi = {
   toggleLike: (id: string) =>
     request<LikePayload>(`/posts/${id}/like`, { method: 'POST' }),
 
-  comments: (id: string, cursor?: string | null, limit = 20) =>
-    request<CommentsPage>(`/posts/${id}/comments`, {
+  comments: ({ postId, limit = 20, cursor, signal }: FetchCommentsParams) =>
+    request<CommentsPage>(`/posts/${postId}/comments`, {
       query: { limit, cursor: cursor ?? undefined },
+      signal,
+    }),
+
+  createComment: (postId: string, text: string) =>
+    request<{ comment: import('../types/api').Comment }>(`/posts/${postId}/comments`, {
+      method: 'POST',
+      body: { text },
     }),
 };

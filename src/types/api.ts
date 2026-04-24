@@ -54,3 +54,8 @@ export interface CommentsPage {
   nextCursor: string | null;
   hasMore: boolean;
 }
+
+export type WsEvent =
+  | { type: 'ping' }
+  | { type: 'like_updated'; postId: string; likesCount: number }
+  | { type: 'comment_added'; postId: string; comment: Comment };

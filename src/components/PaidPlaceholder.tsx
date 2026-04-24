@@ -1,36 +1,71 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, iconSize, layout, opacity, radius, spacing, typography } from '../theme/tokens';
+import {
+  colors,
+  iconSize,
+  layout,
+  opacity,
+  radius,
+  spacing,
+  typography,
+} from '../theme/tokens';
 
 interface Props {
-  onSubscribe?: () => void;
+  coverUrl?: string;
+  onDonate?: () => void;
 }
 
-export function PaidPlaceholder({ onSubscribe }: Props) {
+export function PaidPlaceholder({ coverUrl, onDonate }: Props) {
   return (
     <View style={styles.container}>
-      <View style={styles.iconWrap}>
-        <Ionicons name="lock-closed" size={iconSize.md} color={colors.onAccent} />
+      {coverUrl ? (
+        <Image
+          source={{ uri: coverUrl }}
+          style={styles.backdrop}
+          contentFit="cover"
+          blurRadius={28}
+        />
+      ) : null}
+      <View style={styles.scrim} />
+      <View style={styles.content}>
+        <View style={styles.iconWrap}>
+          <Ionicons name="logo-usd" size={iconSize.md} color={colors.onAccent} />
+        </View>
+        <Text style={styles.text}>
+          Контент скрыт пользователем.{'\n'}Доступ откроется после доната
+        </Text>
+        <Pressable
+          onPress={onDonate}
+          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}>
+          <Text style={styles.buttonText}>Отправить донат</Text>
+        </Pressable>
       </View>
-      <Text style={styles.text}>
-        Контент скрыт владельцем. Доступен открытым после оплаты.
-      </Text>
-      <Pressable
-        onPress={onSubscribe}
-        style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}>
-        <Text style={styles.buttonText}>Отправить</Text>
-      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
-    padding: spacing.xl,
-    gap: spacing.md,
-    backgroundColor: colors.surface,
+    aspectRatio: layout.coverAspectRatio,
     borderRadius: radius.md,
+    overflow: 'hidden',
+    backgroundColor: colors.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  scrim: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.accent,
+    opacity: opacity.pressed,
+  },
+  content: {
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingHorizontal: spacing.xl,
   },
   iconWrap: {
     width: layout.iconWrapSm,
@@ -42,22 +77,20 @@ const styles = StyleSheet.create({
   },
   text: {
     ...typography.caption,
-    color: colors.textSecondary,
+    color: colors.onAccent,
     textAlign: 'center',
   },
   button: {
-    alignSelf: 'stretch',
+    paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
     borderRadius: radius.pill,
     backgroundColor: colors.accent,
-    alignItems: 'center',
   },
   buttonPressed: {
     backgroundColor: colors.accentPressed,
-    opacity: opacity.subtle,
   },
   buttonText: {
-    ...typography.h2,
+    ...typography.meta,
     color: colors.onAccent,
   },
 });

@@ -11,6 +11,7 @@ export default function RootLayout() {
       <QueryProvider>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
+          <Stack.Screen name="post/[id]" options={{ animation: 'slide_from_right' }} />
         </Stack>
         <StatusBar style="auto" />
       </QueryProvider>

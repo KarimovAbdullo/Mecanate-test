@@ -1,73 +1,21 @@
-import { Ionicons } from '@expo/vector-icons';
 import { observer } from 'mobx-react-lite';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { feedUiStore } from '../store';
-import {
-  colors,
-  iconSize,
-  opacity,
-  radius,
-  spacing,
-  typography,
-} from '../theme/tokens';
+import { colors, opacity, radius, spacing, typography } from '../theme/tokens';
 import type { Tier } from '../types/api';
 
 const OPTIONS: { value: Tier | undefined; label: string }[] = [
   { value: undefined, label: 'Все' },
-  { value: 'free', label: 'Бесплатно' },
-  { value: 'paid', label: 'Платно' },
+  { value: 'free', label: 'Бесплатные' },
+  { value: 'paid', label: 'Платные' },
 ];
 
 export const FeedHeader = observer(function FeedHeader() {
   const tier = feedUiStore.tierFilter;
-  const likedOnly = feedUiStore.showLikedOnly;
 
   return (
     <View style={styles.container}>
-      <View style={styles.titleRow}>
-        <Text style={styles.title}>{feedUiStore.tierLabel}</Text>
-        {feedUiStore.isFiltered ? (
-          <Pressable
-            onPress={() => feedUiStore.clearFilters()}
-            hitSlop={spacing.sm}
-            style={({ pressed }) => [styles.reset, pressed && styles.pressed]}>
-            <Text style={styles.resetText}>
-              Сбросить · {feedUiStore.activeFiltersCount}
-            </Text>
-          </Pressable>
-        ) : null}
-      </View>
-
-      <View style={styles.searchRow}>
-        <Ionicons
-          name="search"
-          size={iconSize.sm}
-          color={colors.textTertiary}
-          style={styles.searchIcon}
-        />
-        <TextInput
-          value={feedUiStore.searchQuery}
-          onChangeText={(text) => feedUiStore.setSearchQuery(text)}
-          placeholder="Поиск по ленте"
-          placeholderTextColor={colors.textTertiary}
-          style={styles.searchInput}
-          autoCorrect={false}
-          returnKeyType="search"
-        />
-        {feedUiStore.searchQuery.length > 0 ? (
-          <Pressable
-            onPress={() => feedUiStore.setSearchQuery('')}
-            hitSlop={spacing.sm}>
-            <Ionicons
-              name="close-circle"
-              size={iconSize.md}
-              color={colors.textTertiary}
-            />
-          </Pressable>
-        ) : null}
-      </View>
-
-      <View style={styles.filters}>
+      <View style={styles.segmented}>
         {OPTIONS.map((opt) => {
           const active = opt.value === tier;
           return (
@@ -75,32 +23,16 @@ export const FeedHeader = observer(function FeedHeader() {
               key={opt.label}
               onPress={() => feedUiStore.setTier(opt.value)}
               style={({ pressed }) => [
-                styles.chip,
-                active && styles.chipActive,
-                pressed && styles.pressed,
+                styles.segment,
+                active && styles.segmentActive,
+                pressed && !active && styles.pressed,
               ]}>
-              <Text style={[styles.chipText, active && styles.chipTextActive]}>
+              <Text style={[styles.segmentText, active && styles.segmentTextActive]}>
                 {opt.label}
               </Text>
             </Pressable>
           );
         })}
-        <Pressable
-          onPress={() => feedUiStore.toggleLikedOnly()}
-          style={({ pressed }) => [
-            styles.chip,
-            likedOnly && styles.chipActive,
-            pressed && styles.pressed,
-          ]}>
-          <Ionicons
-            name={likedOnly ? 'heart' : 'heart-outline'}
-            size={iconSize.sm}
-            color={likedOnly ? colors.onAccent : colors.textSecondary}
-          />
-          <Text style={[styles.chipText, likedOnly && styles.chipTextActive]}>
-            Избранное
-          </Text>
-        </Pressable>
       </View>
     </View>
   );
@@ -109,75 +41,34 @@ export const FeedHeader = observer(function FeedHeader() {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: spacing.md,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.md,
-    gap: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.sm,
     backgroundColor: colors.screen,
   },
-  titleRow: {
+  segmented: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  title: {
-    ...typography.display,
-    color: colors.textPrimary,
-    flexShrink: 1,
-  },
-  reset: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.pill,
-    backgroundColor: colors.accentMuted,
-  },
-  resetText: {
-    ...typography.meta,
-    color: colors.accent,
-  },
-  searchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.md,
     backgroundColor: colors.background,
-    borderRadius: radius.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
+    borderRadius: radius.pill,
+    padding: spacing.xs,
   },
-  searchIcon: {
-    marginVertical: spacing.sm,
-  },
-  searchInput: {
+  segment: {
     flex: 1,
     paddingVertical: spacing.sm,
-    ...typography.body,
-    color: colors.textPrimary,
-  },
-  filters: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    flexWrap: 'wrap',
-  },
-  chip: {
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+    justifyContent: 'center',
     borderRadius: radius.pill,
-    backgroundColor: colors.transparent,
   },
-  chipActive: {
+  segmentActive: {
     backgroundColor: colors.accent,
   },
   pressed: {
     opacity: opacity.subtle,
   },
-  chipText: {
+  segmentText: {
     ...typography.meta,
     color: colors.textSecondary,
   },
-  chipTextActive: {
+  segmentTextActive: {
     color: colors.onAccent,
   },
 });
