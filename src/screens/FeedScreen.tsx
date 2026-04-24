@@ -5,6 +5,7 @@ import {
   FlatList,
   RefreshControl,
   StyleSheet,
+  Text,
   View,
   type ListRenderItem,
 } from 'react-native';
@@ -17,18 +18,22 @@ import { PostCardSkeleton } from '../components/PostCardSkeleton';
 import { usePostsFeed } from '../hooks/usePostsFeed';
 import { useToggleLike } from '../hooks/useToggleLike';
 import { feedUiStore } from '../store';
-import { colors, spacing } from '../theme/tokens';
+import { colors, spacing, typography } from '../theme/tokens';
 import type { Post } from '../types/api';
+
+const SKELETON_ITEMS = [0, 1, 2];
 
 export const FeedScreen = observer(function FeedScreen() {
   const tier = feedUiStore.tierFilter;
   const query = usePostsFeed({ tier });
   const likeMutation = useToggleLike();
 
-  const posts = useMemo<Post[]>(
+  const rawPosts = useMemo<Post[]>(
     () => query.data?.pages.flatMap((p) => p.posts) ?? [],
     [query.data],
   );
+
+  const posts = feedUiStore.applyClientFilters(rawPosts);
 
   const handleLike = useCallback(
     (postId: string) => likeMutation.mutate({ postId }),
@@ -52,14 +57,10 @@ export const FeedScreen = observer(function FeedScreen() {
     }
   }, [query]);
 
-  const ListHeader = (
-    <FeedHeader tier={tier} onChangeTier={(t) => feedUiStore.setTier(t)} />
-  );
-
-  if (query.isError && posts.length === 0) {
+  if (query.isError && rawPosts.length === 0) {
     return (
       <SafeAreaView style={styles.flex} edges={['top']}>
-        {ListHeader}
+        <FeedHeader />
         <ErrorState onRetry={() => query.refetch()} />
       </SafeAreaView>
     );
@@ -68,11 +69,11 @@ export const FeedScreen = observer(function FeedScreen() {
   if (query.isLoading) {
     return (
       <SafeAreaView style={styles.flex} edges={['top']}>
-        {ListHeader}
+        <FeedHeader />
         <View style={styles.skeletonList}>
-          <PostCardSkeleton />
-          <PostCardSkeleton />
-          <PostCardSkeleton />
+          {SKELETON_ITEMS.map((key) => (
+            <PostCardSkeleton key={key} />
+          ))}
         </View>
       </SafeAreaView>
     );
@@ -84,7 +85,7 @@ export const FeedScreen = observer(function FeedScreen() {
         data={posts}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
-        ListHeaderComponent={ListHeader}
+        ListHeaderComponent={FeedHeader}
         contentContainerStyle={styles.listContent}
         ItemSeparatorComponent={Separator}
         onEndReached={onEndReached}
@@ -95,6 +96,11 @@ export const FeedScreen = observer(function FeedScreen() {
             onRefresh={() => query.refetch()}
             tintColor={colors.accent}
           />
+        }
+        ListEmptyComponent={
+          feedUiStore.isFiltered && rawPosts.length > 0 ? (
+            <EmptyFiltered />
+          ) : null
         }
         ListFooterComponent={
           query.isFetchingNextPage ? (
@@ -112,6 +118,17 @@ function Separator() {
   return <View style={styles.separator} />;
 }
 
+const EmptyFiltered = observer(function EmptyFiltered() {
+  return (
+    <View style={styles.empty}>
+      <Text style={styles.emptyTitle}>Ничего не найдено</Text>
+      <Text style={styles.emptyText}>
+        По текущим фильтрам ({feedUiStore.activeFiltersCount}) публикаций нет.
+      </Text>
+    </View>
+  );
+});
+
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
@@ -120,6 +137,7 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xxxl,
+    flexGrow: 1,
   },
   separator: {
     height: spacing.sm,
@@ -130,5 +148,19 @@ const styles = StyleSheet.create({
   },
   footer: {
     paddingVertical: spacing.xl,
+  },
+  empty: {
+    padding: spacing.xl,
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  emptyTitle: {
+    ...typography.h2,
+    color: colors.textPrimary,
+  },
+  emptyText: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    textAlign: 'center',
   },
 });

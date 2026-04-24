@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import { colors, layout, radius, spacing } from '../theme/tokens';
+import { colors, layout, radius, skeleton, spacing } from '../theme/tokens';
 
 export function PostCardSkeleton() {
   return (
@@ -8,10 +8,10 @@ export function PostCardSkeleton() {
         <View style={styles.avatar} />
         <View style={styles.headerText}>
           <View style={[styles.line, { width: '45%' }]} />
-          <View style={[styles.line, { width: '30%', height: 10 }]} />
+          <View style={[styles.line, { width: '30%', height: skeleton.lineSm }]} />
         </View>
       </View>
-      <View style={[styles.line, { width: '80%', height: 18 }]} />
+      <View style={[styles.line, { width: '80%', height: skeleton.lineLg }]} />
       <View style={[styles.line, { width: '100%' }]} />
       <View style={[styles.line, { width: '90%' }]} />
       <View style={styles.cover} />
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   line: {
-    height: 14,
+    height: skeleton.lineMd,
     borderRadius: radius.sm,
     backgroundColor: colors.surfaceMuted,
   },

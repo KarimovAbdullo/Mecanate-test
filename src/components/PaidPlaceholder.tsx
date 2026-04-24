@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../theme/tokens';
+import { colors, iconSize, layout, opacity, radius, spacing, typography } from '../theme/tokens';
 
 interface Props {
   onSubscribe?: () => void;
@@ -10,7 +10,7 @@ export function PaidPlaceholder({ onSubscribe }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.iconWrap}>
-        <Ionicons name="lock-closed" size={20} color="#FFFFFF" />
+        <Ionicons name="lock-closed" size={iconSize.md} color={colors.onAccent} />
       </View>
       <Text style={styles.text}>
         Контент скрыт владельцем. Доступен открытым после оплаты.
@@ -33,8 +33,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
   },
   iconWrap: {
-    width: 44,
-    height: 44,
+    width: layout.iconWrapSm,
+    height: layout.iconWrapSm,
     borderRadius: radius.pill,
     backgroundColor: colors.accent,
     alignItems: 'center',
@@ -54,9 +54,10 @@ const styles = StyleSheet.create({
   },
   buttonPressed: {
     backgroundColor: colors.accentPressed,
+    opacity: opacity.subtle,
   },
   buttonText: {
     ...typography.h2,
-    color: '#FFFFFF',
+    color: colors.onAccent,
   },
 });

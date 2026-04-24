@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, type StyleProp, type ViewStyle } from 'react-native';
-import { colors, spacing, typography } from '../theme/tokens';
+import { colors, iconSize, opacity, spacing, touch, typography } from '../theme/tokens';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -19,7 +19,7 @@ export function IconLabel({ icon, label, active, activeColor, onPress, style }: 
 
   const content = (
     <>
-      <Ionicons name={icon} size={18} color={color} />
+      <Ionicons name={icon} size={iconSize.sm} color={color} />
       <Text style={[styles.label, { color }]}>{label}</Text>
     </>
   );
@@ -28,7 +28,7 @@ export function IconLabel({ icon, label, active, activeColor, onPress, style }: 
     return (
       <Pressable
         onPress={onPress}
-        hitSlop={8}
+        hitSlop={touch.hitSlop}
         style={({ pressed }) => [styles.row, style, pressed && styles.pressed]}>
         {content}
       </Pressable>
@@ -48,6 +48,6 @@ const styles = StyleSheet.create({
     ...typography.meta,
   },
   pressed: {
-    opacity: 0.6,
+    opacity: opacity.pressed,
   },
 });

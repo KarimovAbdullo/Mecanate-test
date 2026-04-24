@@ -43,7 +43,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 
   const headers: Record<string, string> = {
     Accept: 'application/json',
-    Authorization: `Bearer ${authStore.token}`,
+    Authorization: authStore.authorizationHeader,
   };
   if (body !== undefined) headers['Content-Type'] = 'application/json';
 

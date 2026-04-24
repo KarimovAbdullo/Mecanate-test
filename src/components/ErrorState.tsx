@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../theme/tokens';
+import { colors, iconSize, layout, opacity, radius, spacing, typography } from '../theme/tokens';
 
 interface Props {
   message?: string;
@@ -16,7 +16,7 @@ export function ErrorState({
   return (
     <View style={styles.container}>
       <View style={styles.iconWrap}>
-        <Ionicons name="cloud-offline-outline" size={32} color={colors.accent} />
+        <Ionicons name="cloud-offline-outline" size={iconSize.xl} color={colors.accent} />
       </View>
       <Text style={styles.message}>{message}</Text>
       {onRetry ? (
@@ -40,8 +40,8 @@ const styles = StyleSheet.create({
     margin: spacing.lg,
   },
   iconWrap: {
-    width: 88,
-    height: 88,
+    width: layout.iconWrapLg,
+    height: layout.iconWrapLg,
     borderRadius: radius.pill,
     backgroundColor: colors.surface,
     alignItems: 'center',
@@ -61,9 +61,10 @@ const styles = StyleSheet.create({
   },
   buttonPressed: {
     backgroundColor: colors.accentPressed,
+    opacity: opacity.subtle,
   },
   buttonText: {
     ...typography.h2,
-    color: '#FFFFFF',
+    color: colors.onAccent,
   },
 });
